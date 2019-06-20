@@ -1,5 +1,4 @@
 #include <iostream>
-
 #include "tester/tester.h"
 
 int main() {
