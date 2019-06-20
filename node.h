@@ -10,7 +10,7 @@ template <typename T>
 class Node {
 protected:
     Node<T> *ptrNext, *ptrDown;
-    
+
 public:
   explicit Node() {
     ptrNext = nullptr;
@@ -44,12 +44,12 @@ public:
     pos = pos_p;
     numElemnts = 0;
   }
+  friend class Matrix<T>;
 };
 
 template <typename T>
 class elementNode : public Node<T> {
 protected:
-	
   unsigned posX, posY;
   T data;
 public:
@@ -58,5 +58,6 @@ public:
     posX = posX_p;
     posY = posY_p;
   }
+  friend class Matrix<T>;
 };
 #endif //SPARSE_MATRIX_NODE_Htemplate <typename T>

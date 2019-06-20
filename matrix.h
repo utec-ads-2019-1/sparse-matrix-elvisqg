@@ -27,12 +27,12 @@ public:
     }
   }
 
-  Node<T>* findNode(unsigned row, unsigned column)	{
-    Node<T> *tempNode = nullptr;
-    tempNode = hRows[row]->ptrNext;
+  elementNode<T>* findNode(unsigned row, unsigned column) const	{
+    elementNode<T> *tempNode = nullptr;
+    tempNode = (elementNode<T>*)hRows[row] -> ptrNext;
     while (!tempNode) {
       if (tempNode -> posX == row && tempNode -> posY == column) return tempNode;
-      tempNode = tempNode -> ptrNext; 
+      tempNode = (elementNode<T>*)tempNode -> ptrNext; 
     }
     return nullptr;
   }
@@ -41,15 +41,16 @@ public:
     //if (posX > root -> numColumns ||  posY > root -> numColumns) throw "OUT OF RANGE";
     if (posX > hRows.size() ||  posY > hColumns.size()) throw "OUT OF RANGE";
     if (findNode(posX, posY) == nullptr) return;
-    elemenNode<T> element(data, posX,posY);
-    Node<T> *currentNode = hRows[posX];
-    Node<T> *prevNode = hRows[posX];
+    elementNode<T> element(data, posX,posY);
+    headNode<T> *header = hRows[posX];
+    elementNode<T> *currentNode = (elementNode<T>*)hRows[posX] -> ptrNext;
+    elementNode<T> *prevNode = (elementNode<T>*) hRows[posX] -> ptrNext ;
     while (1) {
-      if (!(currentNode -> ptrNext)) {
+      if (!(header -> ptrNext)) {
         hRows[posX] -> ptrNext = &element;
         break;
       }  
-      currentNode = currentNode -> ptrNext;
+      currentNode = (elementNode<T>*)currentNode -> ptrNext;
       while (!currentNode) {
         if (currentNode -> posY < posY && currentNode -> ptrNext == nullptr)  {
           currentNode -> ptrNext = &element;
@@ -60,15 +61,16 @@ public:
           prevNode -> ptrNext = &element;
           break;    
         }
-        prevNode = currentNode;
-        currentNode = currentNode -> ptrNext;
+        header = hRows[posY];
+        prevNode = (elementNode<T>*)currentNode;
+        currentNode = (elementNode<T>*)currentNode -> ptrNext;
       }
     }  
-    currentNode = hColumns[posY];
-    prevNode = hColumns[posY];
+    currentNode = (elementNode<T>*)hColumns[posY] -> ptrNext;
+    prevNode = (elementNode<T>*)hColumns[posY] -> ptrNext;
     while (1) {
-      if (!(currentNode -> ptrDown)) hRows(posX) -> ptrDown = &element;
-      currentNode = currentNode -> ptrDown;
+      if (!(currentNode -> ptrDown)) hRows[posX] -> ptrDown = &element;
+      currentNode = (elementNode<T>*)currentNode -> ptrDown;
       while (!currentNode) {
         if (currentNode -> posY < posY && currentNode -> ptrDown == nullptr)  {
           currentNode -> ptrDown = &element;
@@ -80,7 +82,7 @@ public:
           break;    
         }
         prevNode = currentNode;
-        currentNode = currentNode -> ptrDown;
+        currentNode = (elementNode<T>*)currentNode -> ptrDown;
       }
     }
 
@@ -88,7 +90,7 @@ public:
 
   T operator()(unsigned posX, unsigned posY) const {
     if (posX > hRows.size() ||  posY > hColumns.size()) throw "OUT OF RANGE";
-    Node<T> *tempNode = nullptr;
+    elementNode<T> *tempNode = nullptr;
     tempNode = findNode(posX, posY);
     if (!tempNode) return 0;
     return tempNode->data;   
@@ -96,36 +98,37 @@ public:
 
   Matrix<T> operator*(T scalar) const {
     Matrix<T> matrixResult(numRows, numColumns);
-    Node<T> *tempNode = nullptr;
+    elementNode<T> *tempNode = nullptr;
     for (int row = 0; row < hRows.size(); row++) {
-      tempNode = hRows[row] -> ptrNext;
+      tempNode =(elementNode<T>*)hRows[row] -> ptrNext;
       unsigned column = 0;
       while (!tempNode) {
         matrixResult.set(row, column, (tempNode -> data) * scalar);
-        tempNode = tempNode -> ptrNext;  
+        tempNode = (elementNode<T>*)tempNode -> ptrNext;  
         column++;
       }
     }
     return matrixResult;
   }
 
- /* Matrix<T> operator*(Matrix<T> other) const  {
-    if (numRows !=  )
-  }*/
+ Matrix<T> operator*(Matrix<T> other) const  {
+    if (numRows != other.numColumns) throw "THEY CAN'T BE OPERATED ";
+    
+  }
 
   Matrix<T> operator+(Matrix<T> other) const {
     Matrix<T> matrixResult(numRows, numColumns);
     if (hRows.size() == other.hRows.size() && hColumns.size() == other.hColumns.size()) throw "THEY CAN'T BE OPERATED ";
-    Node<T> *tempM1 = nullptr;
-    Node<T> *tempM2 = nullptr; 
+    elementNode<T> *tempM1 = nullptr;
+    elementNode<T> *tempM2 = nullptr; 
     for (int row = 0; row < hRows.size(); row++) {
-      tempM1 = hRows[row] -> ptrNext;
-      tempM2 = other[row].hRows -> ptrNext;
+      tempM1 = (elementNode<T>*)hRows[row] -> ptrNext;
+      tempM2 = (elementNode<T>*)other.hRows[row] -> ptrNext;
       unsigned column = 0;
       while (!tempM1){
         matrixResult.set(row, column, tempM1 -> data + tempM2 -> data);
-        tempM1 = tempM1 -> ptrNext;
-        tempM2 = tempM2 -> ptrNext;
+        tempM1 = (elementNode<T>*)tempM1 -> ptrNext;
+        tempM2 = (elementNode<T>*)tempM2 -> ptrNext;
         column++; 
       }
     }
@@ -135,16 +138,16 @@ public:
   Matrix<T> operator-(Matrix<T> other) const {
     Matrix<T> matrixResult(numRows, numColumns);
     if (hRows.size() == other.hRows.size() && hColumns.size() == other.hColumns.size()) throw "THEY CAN'T BE OPERATED ";
-    Node<T> *tempM1 = nullptr;
-    Node<T> *tempM2 = nullptr; 
+    elementNode<T> *tempM1 = nullptr;
+    elementNode<T> *tempM2 = nullptr; 
     for (int row = 0; row < hRows.size(); row++) {
-      tempM1 = hRows[row] -> ptrNext;
-      tempM2 = other.hRows[row] -> ptrNext;
+      tempM1 = (elementNode<T>*)hRows[row] -> ptrNext;
+      tempM2 = (elementNode<T>*)other.hRows[row] -> ptrNext;
       unsigned column = 0;
       while (!tempM1){
         matrixResult.set(row, column, tempM1 -> data - tempM2 -> data);
-        tempM1 = tempM1 -> ptrNext;
-        tempM2 = tempM2 -> ptrNext;
+        tempM1 = (elementNode<T>*)tempM1 -> ptrNext;
+        tempM2 = (elementNode<T>*)tempM2 -> ptrNext;
         column++; 
       }
     }
@@ -152,7 +155,7 @@ public:
   }
   Matrix<T> transpose() const {
     Matrix<T> matrixResult(numColumns, numRows);
-    Node<T> *tempNode = nullptr;
+    elementNode<T> *tempNode = nullptr;
     for (int column = 0; column < hRows.size(); column++) {
       tempNode = hColumns -> ptrNext;
       unsigned row = 0;
@@ -174,15 +177,15 @@ public:
     }
   }
     
-  void clearList(Node<T> *&tempNode)  {
-    if(tempNode->ptrNext)  clearList(tempNode->ptrNext);
+  void clearList(elementNode<T> *&tempNode)  {
+    if(tempNode->ptrNext)  clearList((elementNode<T>*&)tempNode->ptrNext);
     delete tempNode;
   }
     
   ~Matrix() {
-    Node<T> *tempNode = nullptr;
+    elementNode<T> *tempNode = nullptr;
     for (int row = 0; row < numRows; row++){
-      tempNode = hColumns[row] -> ptrNext;
+      tempNode = (elementNode<T>*)hRows[row] -> ptrNext;
       if (!tempNode -> ptrNext) break;
       clearList(tempNode);
     }
