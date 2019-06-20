@@ -113,7 +113,9 @@ public:
 
  Matrix<T> operator*(Matrix<T> other) const  {
     if (numRows != other.numColumns) throw "THEY CAN'T BE OPERATED ";
-    
+    Matrix<T> matrixResult(numRows, other.numColumns);
+
+    return  matrixResult;
   }
 
   Matrix<T> operator+(Matrix<T> other) const {
